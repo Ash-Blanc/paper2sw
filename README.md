@@ -88,7 +88,7 @@ uv run accelerate launch train.py \
 
 ## 📄 Citation
 ```bibtex
-@misc{paper2sw2024,
+@misc{paper2sw2025,
   title={Paper2SW-Diff: Predicting Super-Weights from Technical Papers},
   author={Ash et al.},
   year={2025},
