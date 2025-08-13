@@ -28,6 +28,8 @@ jobs:
           python-version: '3.x'
       - name: Setup Pages
         uses: actions/configure-pages@v5
+        with:
+          enablement: true
       - name: Install MkDocs Material
         run: |
           pip install --upgrade pip
