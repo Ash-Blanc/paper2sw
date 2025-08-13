@@ -1,4 +1,4 @@
-# Paper2SW-Diff
+# Paper2SW
 
 A diffusion model that reads a technical paper and directly predicts the super-weights of the described model — without ever instantiating the network.
 
