@@ -19,6 +19,7 @@ A diffusion model that reads a technical paper and directly predicts the super-w
 - Benchmarks
 - Use-cases
 - Troubleshooting
+- Contributing
 - Citation
 
 ---
@@ -199,6 +200,35 @@ uv run accelerate launch train.py \
 - Prediction is empty: ensure the paper path/URL is valid and not behind a paywall
 - TeX parsing fails: set `OPENAI_API_KEY` or pre‑convert to Markdown/HTML
 - Out‑of‑memory: reduce `top_k`, use `precision=fp16/bf16`, or run on GPU
+
+---
+
+## 🤝 Contributing (Beginner‑friendly)
+
+- Fork the repo and create a feature branch:
+  ```bash
+  git checkout -b feat/your-feature
+  ```
+- Use uv to run and test locally:
+  ```bash
+  cd paper2sw
+  uv run paper2sw predict --paper ../README.md --out sw.jsonl --top_k 2
+  ```
+- Add tests/examples if you add new flags or functions.
+- Run format/lint (optional):
+  ```bash
+  uvx ruff check .
+  uvx black --check .
+  ```
+- Open a PR with:
+  - What you changed
+  - Why it helps users
+  - How to test it (copy/paste commands)
+
+Good first issues:
+- Add a new example under `examples/`
+- Improve docs (`docs/`)
+- Small CLI flags and config tweaks
 
 ---
 
