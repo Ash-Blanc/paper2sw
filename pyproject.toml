@@ -1,4 +1,4 @@
 [tool.uv.workspace]
 members = [
-    "paper2sw_uv_temporary",
+    "paper2sw",
 ]

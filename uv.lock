@@ -10,4 +10,4 @@ members = [
 [[package]]
 name = "paper2sw"
 version = "0.1.0"
-source = { editable = "paper2sw_uv_temporary" }
+source = { editable = "paper2sw" }
