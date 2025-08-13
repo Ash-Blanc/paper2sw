@@ -1,25 +1,4 @@
-[build-system]
-requires = ["setuptools>=68", "wheel"]
-build-backend = "setuptools.build_meta"
-
-[project]
-name = "paper2sw"
-version = "0.1.0"
-description = "Paper2SW-Diff: Predict super-weights directly from technical papers"
-authors = [
-  {name = "Your Name", email = "you@example.com"},
+[tool.uv.workspace]
+members = [
+    "paper2sw_uv_temporary",
 ]
-readme = "README.md"
-requires-python = ">=3.9"
-classifiers = [
-  "Programming Language :: Python :: 3",
-  "License :: OSI Approved :: MIT License",
-  "Operating System :: OS Independent",
-]
-dependencies = []
-
-[project.urls]
-Homepage = "https://github.com/your-org/Paper2SW-Diff"
-
-[project.scripts]
-paper2sw = "paper2sw.cli:main"
