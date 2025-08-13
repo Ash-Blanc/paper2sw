@@ -4,6 +4,8 @@ A diffusion model that reads a technical paper and directly predicts the super-w
 
 ---
 
+> Full docs: https://ash-blanc.github.io/Paper2SW/
+
 ## Table of Contents
 - Motivation
 - What are super-weights?

@@ -1,5 +1,7 @@
 # Paper2SW (uv project)
 
+Docs: https://ash-blanc.github.io/Paper2SW/
+
 Quickstart with uv from this directory:
 
 ```bash
