@@ -1,0 +1,13 @@
+version = 1
+revision = 3
+requires-python = ">=3.9"
+
+[manifest]
+members = [
+    "paper2sw",
+]
+
+[[package]]
+name = "paper2sw"
+version = "0.1.0"
+source = { editable = "paper2sw" }
