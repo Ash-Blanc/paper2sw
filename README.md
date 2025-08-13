@@ -52,7 +52,14 @@ export OPENAI_API_KEY="..."
 
 ### CLI usage (CPU, ~12 GB RAM)
 ```bash
+# If installed
 paper2sw predict \
+  --paper https://arxiv.org/abs/2411.07191 \
+  --out sw.jsonl \
+  --top_k 5
+
+# Or without installing, from the repo root
+python3 -m paper2sw predict \
   --paper https://arxiv.org/abs/2411.07191 \
   --out sw.jsonl \
   --top_k 5
