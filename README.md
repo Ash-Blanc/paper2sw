@@ -22,7 +22,7 @@ A diffusion model that reads a technical paper and directly predicts the super-w
 ---
 
 ## 🎯 Motivation
-Yu et al. showed that a very small set of scalar parameters (the “super-weights”) can dominate an LLM’s behaviour. Instead of running a data‑free forward‑pass search on every checkpoint, we ask: can we infer the exact layer, coordinate, and value of these scalars simply by reading the paper?
+[Yu et al.](https://arxiv.org/abs/2411.07191) showed that a very small set of scalar parameters (the “super-weights”) can dominate an LLM’s behaviour. Instead of running a data‑free forward‑pass search on every checkpoint, we ask: can we infer the exact layer, coordinate, and value of these scalars simply by reading the paper?
 
 ---
 
