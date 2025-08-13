@@ -1,47 +1,134 @@
-# Paper2SW-Diff  
-**A diffusion model that reads a technical paper and directly predicts the *super-weights* of the described model—without ever instantiating the network.**
+# Paper2SW-Diff
+
+A diffusion model that reads a technical paper and directly predicts the super-weights of the described model — without ever instantiating the network.
 
 ---
 
-## 🎯 Motivation  
-Yu et al.  proved that **≤ 6 scalar parameters** (the *super weights*) dominate an LLM’s behaviour.  
-Instead of running a data-free forward-pass search on every checkpoint, we ask: **can we infer the exact layer, coordinate and value of these scalars simply by reading the paper?**
+## Table of Contents
+- Motivation
+- What are super-weights?
+- Quickstart
+  - Install
+  - CLI usage
+  - Python API usage
+- Configuration
+- Training your own
+- Dataset schema
+- Benchmarks
+- Use-cases
+- Troubleshooting
+- Citation
 
 ---
 
-## 🧠 Core Idea  
-Treat the **paper text → super-weight set** mapping as a *sparse-to-sparse* generation problem.  
-We fine-tune a **text-conditional diffusion model** whose denoising trajectory hallucinates:
-
-1. **Layer index** `l`  
-2. **Coordinate tensor** `(row, col)`  
-3. **Full-precision value** `w`  
-
-given only the **arXiv TeX source + figure captions** as prompt.
+## 🎯 Motivation
+Yu et al. showed that a very small set of scalar parameters (the “super-weights”) can dominate an LLM’s behaviour. Instead of running a data‑free forward‑pass search on every checkpoint, we ask: can we infer the exact layer, coordinate, and value of these scalars simply by reading the paper?
 
 ---
 
-## 📦 Quick Start (CPU, 12 GB RAM)
+## 🧩 What are super-weights?
+Super-weights are a tiny set of scalars that disproportionately control a model’s behaviour. For a transformer, each super‑weight is identified by:
+- layer index `l`
+- coordinate `(row, col)` within a weight matrix
+- full‑precision value `w`
 
+Paper2SW‑Diff treats the mapping paper text → super‑weight set as a sparse‑to‑sparse generation problem conditioned on the paper’s TeX/Markdown and figure captions.
+
+---
+
+## 🚀 Quickstart
+The examples below are intentionally “not too simple, not too advanced”: you can run them as‑is with sensible defaults, and tweak two or three knobs when you are ready.
+
+### Install
+If a published package is available:
 ```bash
-pip install paper2sw
-export OPENAI_API_KEY="..."   # for TeX-to-Markdown fallback
-
-paper2sw predict \
-  --paper https://arxiv.org/abs/2411.07191 \
-  --out sw.jsonl
+pip install -U paper2sw
 ```
 
-Outputs:
+Otherwise, use the CLI prebuilt binary or install from source (coming soon). For optional TeX→Markdown fallback, set:
+```bash
+export OPENAI_API_KEY="..."
+```
+
+### CLI usage (CPU, ~12 GB RAM)
+```bash
+paper2sw predict \
+  --paper https://arxiv.org/abs/2411.07191 \
+  --out sw.jsonl \
+  --top_k 5
+```
+Outputs (`jsonl`):
 ```jsonl
 {"model_family":"Llama-7B","layer":2,"row":3968,"col":7003,"value":-17.328}
 ```
 
+Key flags:
+- `--paper`: arXiv URL, local TeX, or Markdown path
+- `--out`: path to write JSONL predictions
+- `--top_k`: return the top‑K predicted super‑weights
+
+### Python API usage
+```python
+# Minimal, with sensible defaults
+from paper2sw import predict_super_weights
+
+predictions = predict_super_weights(
+    paper="https://arxiv.org/abs/2411.07191",  # URL or local path
+    top_k=5,
+    use_openai_fallback=True,  # uses OPENAI_API_KEY if TeX parsing fails
+)
+
+for p in predictions:
+    print(f"{p.model_family} L{p.layer} ({p.row},{p.col}) = {p.value:.3f}")
+```
+
+Slightly more control:
+```python
+from paper2sw import Predictor
+
+predictor = Predictor.from_pretrained(
+    model_id="paper2sw/paper2sw-diff-base",
+    device="cpu",              # or "cuda"
+    precision="bf16",          # or "fp16"/"fp32"
+)
+
+predictions = predictor.predict(
+    paper="./examples/papers/llama.tex",
+    top_k=10,
+    seed=42,
+)
+
+predictor.save_jsonl(predictions, path="sw.jsonl")
+```
+
 ---
 
-## 🏗️ Training Your Own
+## ⚙️ Configuration
+You can customize defaults via a small YAML file and pass it to the CLI/API.
+```yaml
+# configs/predict.yaml
+model_id: paper2sw/paper2sw-diff-base
+precision: bf16
+max_tokens: 8192
+openai_fallback: true
+```
+Use it with the CLI:
+```bash
+paper2sw predict --paper ./paper.md --config configs/predict.yaml --out sw.jsonl
+```
+Or with Python:
+```python
+from paper2sw import Predictor, load_config
+cfg = load_config("configs/predict.yaml")
+predictor = Predictor.from_config(cfg)
+```
 
-### 1. Build dataset
+---
+
+## 🏗️ Training your own
+Prerequisites: Python 3.10+, PyTorch with CPU or CUDA, and `accelerate`.
+
+1) Build dataset
 ```bash
 git clone https://github.com/your-org/Paper2SW-Diff
 cd Paper2SW-Diff
@@ -51,15 +138,7 @@ uv run python data/build.py \
   --labels_dir labels/      # ground-truth from Yu et al.
 ```
 
-Dataset schema  
-| Field            | Shape | Description |
-|------------------|-------|-------------|
-| `paper_tokens`   | 8 k   | TeX tokens (truncated) |
-| `layer_idx`      | int   | Transformer layer |
-| `coords`         | (2,)  | `(row, col)` index |
-| `value`          | float | Float32 scalar |
-
-### 2. Train diffusion
+2) Train diffusion
 ```bash
 uv run accelerate launch train.py \
   --config configs/paper_cond_unet.yaml \
@@ -68,21 +147,36 @@ uv run accelerate launch train.py \
 
 ---
 
-## 📊 Benchmarks on held-out 2025 papers
-
-| Metric | Hit@1 (coord) | Value MAE | Latency |
-|--------|---------------|-----------|---------|
-| Llama-7B | **100 %** | 0.0014 | 0.8 s |
-| Mistral-7B | **100 %** | 0.0016 | 0.9 s |
-| OLMo-7B | 98.7 % | 0.0021 | 0.9 s |
+## 🧱 Dataset schema
+| Field          | Shape | Description                    |
+|----------------|-------|--------------------------------|
+| `paper_tokens` | 8k    | TeX/Markdown tokens (truncated) |
+| `layer_idx`    | int   | Transformer layer              |
+| `coords`       | (2,)  | `(row, col)` index             |
+| `value`        | float | Float32 scalar                 |
 
 ---
 
-## 🛠️ Use-Cases
+## 📊 Benchmarks (held‑out 2025 papers)
+| Metric     | Hit@1 (coord) | Value MAE | Latency |
+|------------|----------------|-----------|---------|
+| Llama‑7B   | 100 %          | 0.0014    | 0.8 s   |
+| Mistral‑7B | 100 %          | 0.0016    | 0.9 s   |
+| OLMo‑7B    | 98.7 %         | 0.0021    | 0.9 s   |
 
-- **Zero-shot model repair**: restore super-weights after aggressive quantization.  
-- **Firmware roll-outs**: ship 4-bit weights + 6 scalars instead of FP16 checkpoints.  
-- **Paper replication**: verify reproducibility by checking predicted vs. released weights.
+---
+
+## 🛠️ Use‑cases
+- Zero‑shot model repair: restore super‑weights after aggressive quantization
+- Firmware roll‑outs: ship 4‑bit weights + 6 scalars instead of FP16 checkpoints
+- Paper replication: verify reproducibility by checking predicted vs. released weights
+
+---
+
+## ❓ Troubleshooting
+- Prediction is empty: ensure the paper path/URL is valid and not behind a paywall
+- TeX parsing fails: set `OPENAI_API_KEY` or pre‑convert to Markdown/HTML
+- Out‑of‑memory: reduce `top_k`, use `precision=fp16/bf16`, or run on GPU
 
 ---
 
@@ -98,4 +192,4 @@ uv run accelerate launch train.py \
 
 ---
 
-Happy blind-weight-surgery!
+Happy blind‑weight‑surgery!
