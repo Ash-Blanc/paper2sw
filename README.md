@@ -63,6 +63,19 @@ python3 -m paper2sw predict \
   --paper https://arxiv.org/abs/2411.07191 \
   --out sw.jsonl \
   --top_k 5
+
+# Extras: keep only 50% of relevant text and enable cache
+python3 -m paper2sw predict \
+  --paper ./README.md \
+  --out sw.jsonl \
+  --top_k 3 \
+  --keep_ratio 0.5
+
+# Batch mode
+python3 -m paper2sw batch \
+  --papers ./README.md ./LICENSE \
+  --out_dir ./outs \
+  --top_k 2
 ```
 Outputs (`jsonl`):
 ```jsonl
