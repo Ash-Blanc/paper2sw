@@ -13,6 +13,9 @@ paper2sw schema
 paper2sw version
 ```
 
+!!! note "Output formats"
+    Use `--format csv` to produce CSV instead of JSONL. Use `--out -` to stream results to stdout.
+
 - `--paper`: input URL or path
 - `--out`: output path, or `-` for stdout
 - `--format`: output format (`jsonl` default, or `csv`)
@@ -26,22 +29,26 @@ paper2sw version
 - `--precision`: numeric precision (e.g., `bf16`, `fp16`, `fp32`)
 
 Examples
-```bash
-# Predict and write JSONL
+```bash title="Predict and write JSONL"
 paper2sw predict --paper ./README.md --out sw.jsonl --top_k 5
+```
 
-# Predict and write CSV
+```bash title="Predict and write CSV"
 paper2sw predict --paper ./README.md --out sw.csv --top_k 5 --format csv
+```
 
-# Stream JSONL to stdout
+```bash title="Stream JSONL to stdout"
 paper2sw predict --paper ./README.md --out - --top_k 3 | head
+```
 
-# Batch mode to CSV files
+```bash title="Batch mode to CSV files"
 paper2sw batch --papers ./README.md ./LICENSE --out_dir outs --top_k 2 --format csv
+```
 
-# Print JSON schema of the prediction object
+```bash title="Print JSON schema"
 paper2sw schema
+```
 
-# Print version
+```bash title="Print version"
 paper2sw version
 ```
