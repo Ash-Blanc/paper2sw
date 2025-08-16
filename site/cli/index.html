@@ -595,18 +595,49 @@
 
 
 <h1 id="cli">CLI<a class="headerlink" href="#cli" title="Permanent link">&para;</a></h1>
-<div class="highlight"><pre><span></span><code>paper2sw predict --paper &lt;URL|PATH&gt; --out &lt;FILE&gt; [--top_k K] [--keep_ratio R] [--seed S] [--no_cache] [--backend NAME]
+<div class="highlight"><pre><span></span><code>paper2sw predict --paper &lt;URL|PATH&gt; --out &lt;FILE|-&gt; [--top_k K] [--keep_ratio R] [--seed S] [--no_cache]
+                  [--backend NAME] [--model_id ID] [--device DEV] [--precision P]
+                  [--cache_dir DIR] [--format {jsonl,csv}]
 
-paper2sw batch --papers &lt;P1 P2 ...&gt; --out_dir &lt;DIR&gt; [--top_k K] [--keep_ratio R] [--seed S] [--no_cache] [--backend NAME]
+paper2sw batch --papers &lt;P1 P2 ...&gt; --out_dir &lt;DIR&gt; [--top_k K] [--keep_ratio R] [--seed S] [--no_cache]
+               [--backend NAME] [--model_id ID] [--device DEV] [--precision P]
+               [--cache_dir DIR] [--format {jsonl,csv}]
+
+paper2sw schema
+paper2sw version
 </code></pre></div>
 <ul>
 <li><code>--paper</code>: input URL or path</li>
-<li><code>--out</code>: JSONL output path</li>
+<li><code>--out</code>: output path, or <code>-</code> for stdout</li>
+<li><code>--format</code>: output format (<code>jsonl</code> default, or <code>csv</code>)</li>
 <li><code>--top_k</code>: number of predictions</li>
 <li><code>--keep_ratio</code>: fraction of text to keep for long-context selection (0..1)</li>
 <li><code>--no_cache</code>: disable cache for this run</li>
+<li><code>--cache_dir</code>: override cache directory (default: <code>~/.cache/paper2sw</code>)</li>
 <li><code>--backend</code>: backend id (reserved for future models)</li>
+<li><code>--model_id</code>: model identifier (default: <code>paper2sw/paper2sw-diff-base</code>)</li>
+<li><code>--device</code>: compute device (e.g., <code>cpu</code>, <code>cuda:0</code>)</li>
+<li><code>--precision</code>: numeric precision (e.g., <code>bf16</code>, <code>fp16</code>, <code>fp32</code>)</li>
 </ul>
+<p>Examples
+<div class="highlight"><pre><span></span><code><span class="c1"># Predict and write JSONL</span>
+paper2sw<span class="w"> </span>predict<span class="w"> </span>--paper<span class="w"> </span>./README.md<span class="w"> </span>--out<span class="w"> </span>sw.jsonl<span class="w"> </span>--top_k<span class="w"> </span><span class="m">5</span>
+
+<span class="c1"># Predict and write CSV</span>
+paper2sw<span class="w"> </span>predict<span class="w"> </span>--paper<span class="w"> </span>./README.md<span class="w"> </span>--out<span class="w"> </span>sw.csv<span class="w"> </span>--top_k<span class="w"> </span><span class="m">5</span><span class="w"> </span>--format<span class="w"> </span>csv
+
+<span class="c1"># Stream JSONL to stdout</span>
+paper2sw<span class="w"> </span>predict<span class="w"> </span>--paper<span class="w"> </span>./README.md<span class="w"> </span>--out<span class="w"> </span>-<span class="w"> </span>--top_k<span class="w"> </span><span class="m">3</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>head
+
+<span class="c1"># Batch mode to CSV files</span>
+paper2sw<span class="w"> </span>batch<span class="w"> </span>--papers<span class="w"> </span>./README.md<span class="w"> </span>./LICENSE<span class="w"> </span>--out_dir<span class="w"> </span>outs<span class="w"> </span>--top_k<span class="w"> </span><span class="m">2</span><span class="w"> </span>--format<span class="w"> </span>csv
+
+<span class="c1"># Print JSON schema of the prediction object</span>
+paper2sw<span class="w"> </span>schema
+
+<span class="c1"># Print version</span>
+paper2sw<span class="w"> </span>version
+</code></pre></div></p>
 
 
 
