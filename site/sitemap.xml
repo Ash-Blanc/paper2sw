@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+         <loc>https://ash-blanc.github.io/paper2sw/</loc>
+         <lastmod>2025-08-16</lastmod>
+    </url>
+    <url>
+         <loc>https://ash-blanc.github.io/paper2sw/cli/</loc>
+         <lastmod>2025-08-16</lastmod>
+    </url>
+    <url>
+         <loc>https://ash-blanc.github.io/paper2sw/configuration/</loc>
+         <lastmod>2025-08-16</lastmod>
+    </url>
+    <url>
+         <loc>https://ash-blanc.github.io/paper2sw/contributing/</loc>
+         <lastmod>2025-08-16</lastmod>
+    </url>
+    <url>
+         <loc>https://ash-blanc.github.io/paper2sw/features/</loc>
+         <lastmod>2025-08-16</lastmod>
+    </url>
+    <url>
+         <loc>https://ash-blanc.github.io/paper2sw/python-api/</loc>
+         <lastmod>2025-08-16</lastmod>
+    </url>
+    <url>
+         <loc>https://ash-blanc.github.io/paper2sw/quickstart/</loc>
+         <lastmod>2025-08-16</lastmod>
+    </url>
+</urlset>
