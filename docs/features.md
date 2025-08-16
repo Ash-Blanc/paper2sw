@@ -1,7 +1,22 @@
 # Features
 
-- Content-hash caching: speeds up repeat runs
-- Long-context selection: keep the most relevant fraction of text
-- Batch prediction: multiple inputs in one command
-- CSV/JSONL output helpers
-- UV-managed project for reproducibility
+- Easier setup and quickstart
+- Built-in CLI and Python API
+- Works with arXiv links and local PDFs
+- Configurable output formats
+- Extensible pipeline
+
+## Diagrams
+
+```mermaid
+graph TD;
+  A[Paper] -->|extracts| B(Text + Figures);
+  B --> C{Model Reader};
+  C -->|predicts| D[Super-Weights];
+```
+
+## Tasks
+
+- [x] GitHub Pages deployment
+- [x] Material theme enhancements
+- [ ] Dataset examples

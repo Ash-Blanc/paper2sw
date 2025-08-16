@@ -15,19 +15,39 @@ nav:
 
 theme:
   name: material
+  logo: assets/logo.svg
+  favicon: assets/logo.svg
+  font:
+    text: Inter
+    code: JetBrains Mono
   features:
     - navigation.instant
     - navigation.sections
     - navigation.expand
+    - navigation.tabs
+    - navigation.top
+    - toc.integrate
     - content.code.copy
     - content.action.edit
+    - content.tabs.link
   palette:
     - scheme: default
       primary: blue
       accent: indigo
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - scheme: slate
+      primary: blue
+      accent: indigo
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
 
 plugins:
   - search
+  - glightbox
+  - minify
 
 markdown_extensions:
   - admonition
@@ -38,9 +58,29 @@ markdown_extensions:
   - tables
   - attr_list
   - def_list
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.critic
+  - pymdownx.caret
+  - pymdownx.mark
+  - pymdownx.tilde
 
 extra:
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/Ash-Blanc/paper2sw
 edit_uri: edit/main/docs/
+
+extra_css:
+  - stylesheets/extra.css
+
+extra_javascript:
+  - https://unpkg.com/mermaid@10/dist/mermaid.min.js
+  - javascripts/extra.js
