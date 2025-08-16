@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import List, Iterable
 
 from .predictor import Predictor
-from .types import SuperWeightPrediction
+from .custom_types import SuperWeightPrediction
 from .io_utils import write_csv
 
 

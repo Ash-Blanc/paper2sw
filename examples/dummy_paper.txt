@@ -1,0 +1,4 @@
+This is a test paper about Llama models.
+The model architecture is based on a transformer.
+We use a feed-forward network (FFN) and multi-head attention.
+The results are promising.

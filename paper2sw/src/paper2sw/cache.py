@@ -7,7 +7,7 @@ from dataclasses import asdict
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional
 
-from .types import SuperWeightPrediction
+from .custom_types import SuperWeightPrediction
 
 
 class CacheManager:

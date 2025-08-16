@@ -7,8 +7,13 @@ from pathlib import Path
 from typing import Iterable, Dict, Any, List, Optional
 from urllib.parse import urlparse
 from urllib.request import urlopen
+import io
+try:
+    from pypdf import PdfReader
+except ImportError:
+    PdfReader = None
 
-from .types import SuperWeightPrediction
+from .custom_types import SuperWeightPrediction
 
 
 def is_url(text: str) -> bool:
@@ -19,19 +24,35 @@ def is_url(text: str) -> bool:
         return False
 
 
+def _read_pdf_text(content: bytes) -> str:
+    if PdfReader is None:
+        raise ImportError("pypdf is not installed. Please install it with `pip install pypdf`")
+    reader = PdfReader(io.BytesIO(content))
+    text = ""
+    for page in reader.pages:
+        text += page.extract_text() or ""
+    return text
+
+
 def read_text_from_source(source: str | Path, timeout_seconds: int = 15) -> str:
     if isinstance(source, Path):
         if not source.exists():
             raise FileNotFoundError(f"Paper path does not exist: {source}")
+        if source.suffix.lower() == ".pdf":
+            return _read_pdf_text(source.read_bytes())
         return source.read_text(encoding="utf-8", errors="ignore")
 
     if is_url(str(source)):
         with urlopen(str(source), timeout=timeout_seconds) as response:
             data = response.read()
+            if "pdf" in (response.headers.get("Content-Type") or "").lower() or str(source).lower().endswith(".pdf"):
+                return _read_pdf_text(data)
             return data.decode("utf-8", errors="ignore")
 
     path = Path(str(source))
     if path.exists():
+        if path.suffix.lower() == ".pdf":
+            return _read_pdf_text(path.read_bytes())
         return path.read_text(encoding="utf-8", errors="ignore")
 
     raise FileNotFoundError(
@@ -48,7 +69,8 @@ def write_jsonl(
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with output_path.open("w", encoding="utf-8") as handle:
         for prediction in predictions:
-            obj = prediction.to_dict()
+            from dataclasses import asdict
+            obj = asdict(prediction)
             if metadata:
                 obj.update(metadata)
             handle.write(json.dumps(obj, ensure_ascii=False))
