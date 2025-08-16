@@ -5,7 +5,7 @@ from typing import List, Dict, Any, Iterable, Optional
 
 from .io_utils import read_text_from_source, write_jsonl
 from .model import DummyDiffusionModel
-from .types import SuperWeightPrediction
+from .custom_types import SuperWeightPrediction
 from .cache import CacheManager
 from .selector import select_relevant
 

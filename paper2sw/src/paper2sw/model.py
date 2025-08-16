@@ -4,7 +4,7 @@ import hashlib
 import random
 from typing import List
 
-from .types import SuperWeightPrediction
+from .custom_types import SuperWeightPrediction
 
 
 class DummyDiffusionModel:
