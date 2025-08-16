@@ -1,8 +1,8 @@
 site_name: Paper2SW
 site_description: Predict super-weights directly from technical papers
-site_url: https://ash-blanc.github.io/Paper2SW/
-repo_url: https://github.com/Ash-Blanc/Paper2SW
-repo_name: Ash-Blanc/Paper2SW
+site_url: https://ash-blanc.github.io/paper2sw/
+repo_url: https://github.com/Ash-Blanc/paper2sw
+repo_name: Ash-Blanc/paper2sw
 
 nav:
   - Home: index.md
@@ -42,4 +42,5 @@ markdown_extensions:
 extra:
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/Ash-Blanc/Paper2SW
+      link: https://github.com/Ash-Blanc/paper2sw
+edit_uri: edit/main/docs/
