@@ -1,9 +1,14 @@
 from __future__ import annotations
 
 import argparse
+import json
+import sys
+from pathlib import Path
 
 from .config import load_config
 from .predictor import Predictor
+from .types import SuperWeightPrediction
+from .io_utils import write_jsonl
 
 
 def _build_parser() -> argparse.ArgumentParser:
@@ -17,14 +22,22 @@ def _build_parser() -> argparse.ArgumentParser:
     common.add_argument("--no_cache", action="store_true", help="Disable cache read/write for this run")
     common.add_argument("--keep_ratio", type=float, default=1.0, help="Keep ratio for long-context selection (0..1)")
     common.add_argument("--backend", type=str, default="dummy", help="Backend id (for future models)")
+    common.add_argument("--model_id", type=str, default="paper2sw/paper2sw-diff-base", help="Model identifier")
+    common.add_argument("--device", type=str, default="cpu", help="Device (e.g., cpu, cuda:0)")
+    common.add_argument("--precision", type=str, default="bf16", help="Precision (e.g., bf16, fp16, fp32)")
+    common.add_argument("--cache_dir", type=str, default=None, help="Cache directory (default: ~/.cache/paper2sw)")
+    common.add_argument("--format", type=str, choices=["jsonl", "csv"], default="jsonl", help="Output format")
 
     predict_parser = subparsers.add_parser("predict", parents=[common], help="Predict super-weights from a paper")
     predict_parser.add_argument("--paper", required=True, help="arXiv URL or local path to paper text/TeX/Markdown")
-    predict_parser.add_argument("--out", required=True, help="Path to write JSONL predictions")
+    predict_parser.add_argument("--out", required=True, help="Path to write predictions or '-' for stdout")
 
     batch_parser = subparsers.add_parser("batch", parents=[common], help="Predict for multiple papers")
     batch_parser.add_argument("--papers", required=True, nargs="+", help="List of URLs/paths")
-    batch_parser.add_argument("--out_dir", required=True, help="Directory to write JSONL files per input")
+    batch_parser.add_argument("--out_dir", required=True, help="Directory to write outputs per input")
+
+    subparsers.add_parser("schema", help="Print JSON schema for the prediction object")
+    subparsers.add_parser("version", help="Print the version and exit")
 
     return parser
 
@@ -35,19 +48,64 @@ def _make_predictor(args: argparse.Namespace) -> Predictor:
         cfg.setdefault("enable_cache", not args.no_cache)
         cfg.setdefault("selection_keep_ratio", float(args.keep_ratio))
         cfg.setdefault("backend", str(args.backend))
+        cfg.setdefault("model_id", str(args.model_id))
+        cfg.setdefault("device", str(args.device))
+        cfg.setdefault("precision", str(args.precision))
+        if args.cache_dir:
+            cfg.setdefault("cache_dir", str(args.cache_dir))
         predictor = Predictor.from_config(cfg)
     else:
         predictor = Predictor.from_pretrained(
+            model_id=str(args.model_id),
+            device=str(args.device),
+            precision=str(args.precision),
             enable_cache=not args.no_cache,
             selection_keep_ratio=float(args.keep_ratio),
             backend=str(args.backend),
+            cache_dir=str(args.cache_dir) if args.cache_dir else None,
         )
     return predictor
 
 
+def _write_output(preds: list[SuperWeightPrediction], path: str | Path, fmt: str) -> None:
+    if path == "-":
+        if fmt == "jsonl":
+            for p in preds:
+                sys.stdout.write(json.dumps(p.to_dict()) + "\n")
+        else:
+            # write a CSV header + rows to stdout
+            from csv import DictWriter
+
+            fieldnames = ["model_family", "layer", "row", "col", "value"]
+            writer = DictWriter(sys.stdout, fieldnames=fieldnames)
+            writer.writeheader()
+            for p in preds:
+                writer.writerow(p.to_dict())
+        return
+
+    # file outputs
+    if fmt == "jsonl":
+        write_jsonl(preds, path)
+    else:
+        from .io_utils import write_csv
+
+        write_csv(preds, path)
+
+
 def main(argv: list[str] | None = None) -> int:
+    from .types import SuperWeightPrediction as _SW
+    from . import __version__
+
     parser = _build_parser()
     args = parser.parse_args(argv)
+
+    if args.command == "schema":
+        print(json.dumps(_SW.json_schema(), indent=2))
+        return 0
+
+    if args.command == "version":
+        print(__version__)
+        return 0
 
     if args.command == "predict":
         predictor = _make_predictor(args)
@@ -57,7 +115,7 @@ def main(argv: list[str] | None = None) -> int:
             seed=args.seed,
             use_cache=None if not args.no_cache else False,
         )
-        predictor.save_jsonl(predictions, path=args.out)
+        _write_output(predictions, args.out, args.format)
         return 0
 
     if args.command == "batch":
@@ -71,7 +129,8 @@ def main(argv: list[str] | None = None) -> int:
             safe_name = (
                 p.replace("/", "_").replace(":", "_").replace("?", "_").replace("&", "_").replace("=", "_")
             )
-            predictor.save_jsonl(preds, path=out_dir / f"{safe_name}.jsonl")
+            out_path = out_dir / f"{safe_name}.{args.format}"
+            _write_output(preds, str(out_path), args.format)
         return 0
 
     parser.print_help()

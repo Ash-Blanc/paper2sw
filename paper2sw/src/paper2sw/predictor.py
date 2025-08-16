@@ -19,10 +19,11 @@ class Predictor:
         enable_cache: bool = True,
         selection_keep_ratio: float = 1.0,
         backend: str = "dummy",  # placeholder for future backends
+        cache_dir: str | Path | None = None,
     ) -> None:
         self.model_id = model_id
         self.model = DummyDiffusionModel(model_id=model_id, device=device, precision=precision)
-        self.cache = CacheManager(enabled=enable_cache, version_salt=f"{model_id}:{precision}")
+        self.cache = CacheManager(cache_dir=cache_dir, enabled=enable_cache, version_salt=f"{model_id}:{precision}")
         self.selection_keep_ratio = selection_keep_ratio
         self.backend = backend
 
@@ -35,6 +36,7 @@ class Predictor:
         enable_cache: bool = True,
         selection_keep_ratio: float = 1.0,
         backend: str = "dummy",
+        cache_dir: str | Path | None = None,
     ) -> "Predictor":
         return cls(
             model_id=model_id,
@@ -43,6 +45,7 @@ class Predictor:
             enable_cache=enable_cache,
             selection_keep_ratio=selection_keep_ratio,
             backend=backend,
+            cache_dir=cache_dir,
         )
 
     @classmethod
@@ -53,6 +56,7 @@ class Predictor:
         enable_cache = bool(config.get("enable_cache", True))
         selection_keep_ratio = float(config.get("selection_keep_ratio", 1.0))
         backend = str(config.get("backend", "dummy"))
+        cache_dir = config.get("cache_dir")
         return cls(
             model_id=model_id,
             device=device,
@@ -60,6 +64,7 @@ class Predictor:
             enable_cache=enable_cache,
             selection_keep_ratio=selection_keep_ratio,
             backend=backend,
+            cache_dir=cache_dir,
         )
 
     def _maybe_select(self, text: str) -> str:
