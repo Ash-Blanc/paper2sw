@@ -85,4 +85,4 @@ Super-weights are a small set of numbers that strongly affect how a neural netwo
 ```
 
 ## Documentation
-For advanced usage, troubleshooting, and contributing, see the full documentation: https://ash-blanc.github.io/paper2sw/
+For advanced usage, troubleshooting, and contributing, see the full documentation [here](https://ash-blanc.github.io/paper2sw/)
