@@ -26,8 +26,14 @@ theme:
     - navigation.expand
     - navigation.tabs
     - navigation.top
+    - navigation.footer
+    - header.autohide
     - toc.integrate
+    - search.suggest
+    - search.highlight
     - content.code.copy
+    - content.code.annotate
+    - content.footnote.tooltips
     - content.action.edit
     - content.tabs.link
   palette:
@@ -71,6 +77,9 @@ markdown_extensions:
   - pymdownx.caret
   - pymdownx.mark
   - pymdownx.tilde
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
 
 extra:
   social:
